@@ -7,7 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 import pickle
-
+from scipy.linalg import eigh
+from scipy.cluster.vq import kmeans2
+import matplotlib.backends.backend_pdf as pdf
 ######################################################################
 #####     CHECK THE PARAMETERS     ########
 ######################################################################
