@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 import pickle
-
+import matplotlib.backends.backend_pdf as pdf
+from scipy.spatial.distance import cdist
 ######################################################################
 #####     CHECK THE PARAMETERS     ########
 ######################################################################
