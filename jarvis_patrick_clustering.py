@@ -61,39 +61,6 @@ def compute_adjusted_rand_index(true_labels, predicted_labels):
     max_index = (sum_ab + sum_cd) / 2
     return (sum_ad_bc - expected_index) / (max_index - expected_index)
 
-def plot_parameter_heatmap(k_values, s_min_values, scores, title, score_type):
-    plt.figure(figsize=(10, 6))
-    plt.imshow(scores, extent=[min(k_values), max(k_values), min(s_min_values), max(s_min_values)], aspect='auto', origin='lower')
-    plt.colorbar(label=score_type)
-    plt.xlabel('k')
-    plt.ylabel('s_min')
-    plt.title(title)
-    plt.grid(True)
-    plt.show()
-
-def compute_scores(data, labels, k_values, s_min_values):
-    sse_scores = np.zeros((len(s_min_values), len(k_values)))
-    ari_scores = np.zeros((len(s_min_values), len(k_values)))
-
-    for i, k in enumerate(k_values):
-        for j, s_min in enumerate(s_min_values):
-            params_dict = {'k': k, 's_min': s_min}
-            _, sse, ari = jarvis_patrick(data, labels, params_dict)
-            sse_scores[j, i] = sse
-            ari_scores[j, i] = ari
-
-    return sse_scores, ari_scores
-
-def plot_k_s_min_scores(data, labels, k_range, s_min_range):
-    k_values = np.array(k_range)
-    s_min_values = np.array(s_min_range)
-
-    sse_scores, ari_scores = compute_scores(data, labels, k_values, s_min_values)
-
-    plot_parameter_heatmap(k_values, s_min_values, sse_scores, 'SSE scores', 'SSE')
-    plot_parameter_heatmap(k_values, s_min_values, ari_scores, 'ARI scores', 'ARI')
-
-
 def jarvis_patrick(
     data: NDArray[np.floating], labels: NDArray[np.int32], params_dict: dict
 ) -> tuple[NDArray[np.int32] | None, float | None, float | None]:
@@ -175,7 +142,19 @@ def hyperparameter_study(data, labels, k_range, s_min_range, num_trials):
                 best_s_min = s_min
 
     return best_k, best_s_min
+def compute_scores(data, labels, k_values, s_min_values):
+    sse_scores = np.zeros((len(s_min_values), len(k_values)))
+    ari_scores = np.zeros((len(s_min_values), len(k_values)))
 
+    for i, k in enumerate(k_values):
+        for j, s_min in enumerate(s_min_values):
+            params_dict = {'k': k, 's_min': s_min}
+            _, sse, ari = jarvis_patrick(data, labels, params_dict)
+            sse_scores[j, i] = sse
+            ari_scores[j, i] = ari
+
+    return sse_scores, ari_scores
+    
 def jarvis_patrick_clustering():
     """
     Performs Jarvis-Patrick clustering on a dataset.
@@ -233,7 +212,7 @@ def jarvis_patrick_clustering():
             best_index = i
             
     
-    
+    pdf_pages = pdf.PdfPages("jarvis_patrick_clustering_plots.pdf")
     
     plt.figure(figsize=(8, 6))
     plot_ARI = plt.scatter(cluster_data[best_index * 1000: (best_index + 1) * 1000, 0], 
@@ -267,7 +246,33 @@ def jarvis_patrick_clustering():
     plt.grid(True)
     pdf_output.savefig()  
     plt.close()
-    
+    k_values = np.array(k_range)
+    s_min_values = np.array(s_min_range)
+    sse_scores, ari_scores = compute_scores(data_subset, labels_subset, k_values, s_min_values)
+
+    # Plot SSE scores
+    plt.figure(figsize=(8, 6))
+    plt.scatter(np.tile(k_values, len(s_min_range)), np.repeat(s_min_values, len(k_range)), c=sse_scores.flatten(), cmap='viridis')
+    plt.colorbar(label='SSE')
+    plt.title('SSE scores for different values of k and s_min')
+    plt.xlabel('k')
+    plt.ylabel('s_min')
+    plt.grid(True)
+    pdf_pages.savefig()
+    plt.close()
+
+    # Plot ARI scores
+    plt.figure(figsize=(8, 6))
+    plt.scatter(np.tile(k_values, len(s_min_range)), np.repeat(s_min_values, len(k_range)), c=ari_scores.flatten(), cmap='viridis')
+    plt.colorbar(label='ARI')
+    plt.title('ARI scores for different values of k and s_min')
+    plt.xlabel('k')
+    plt.ylabel('s_min')
+    plt.grid(True)
+    pdf_pages.savefig()
+    plt.close()
+
+    pdf_pages.close()
     pdf_output.close()
     
     # Create a dictionary for each parameter pair ('sigma' and 'xi').
