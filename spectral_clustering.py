@@ -10,9 +10,11 @@ import pickle
 from scipy.linalg import eigh
 from scipy.cluster.vq import kmeans2
 import matplotlib.backends.backend_pdf as pdf
+
 ######################################################################
 #####     CHECK THE PARAMETERS     ########
 ######################################################################
+
 def calculate_SSE(data, labels): 
     sse_total = 0.0
     for i in np.unique(labels):
@@ -24,7 +26,7 @@ def calculate_SSE(data, labels):
 
 def display_clustering_results(data,labels,title):
     plt.figure(figsize=(8, 6))
-    plt.scatter(dataset[:, 0], dataset[:, 1], c=labels, cmap='viridis', s=10)
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', s=10)
     plt.title(title)
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
@@ -90,7 +92,7 @@ def spectral(
     sigma = params_dict['sigma']
     k = params_dict['k']
     
-    # Similarity Matrix
+    #Similarity Matrix
     
     num_samples = data.shape[0]
     sim_matrix = np.zeros((num_samples, num_samples))
@@ -125,18 +127,18 @@ def perform_spectral_clustering_analysis(data, labels):
         - An array of ARI scores corresponding to each sigma value.
         - An array of SSE scores corresponding to each sigma value.
     """
-    adjusted_rand_indices = []
-    sum_of_squared_errors = []
+    ari_scores = []
+    sse_scores = []
 
     sigmas = np.logspace(-1, 1, num=10)  
     k = 5  
 
     for sigma in sigmas:
         _, sse, ari, _ = spectral(data, labels, {'sigma': sigma , 'k': k})
-        sum_of_squared_errors.append(sse)
-        adjusted_rand_indices.append(ari)
+        sse_scores.append(sse)
+        ari_scores.append(ari)
 
-    return sigmas, np.array(adjusted_rand_indices), np.array(sum_of_squared_errors)
+    return sigmas, np.array(ari_scores), np.array(sse_scores)
 
 
 
@@ -166,13 +168,13 @@ def spectral_clustering():
     data_subset = cluster_data[:1000]
     labels_subset = cluster_labels[:1000]
 
-    sigma_range, ari_results, sse_results = perform_spectral_clustering_analysis(data_subset, labels_subset)
+    sigmas, ari_scores, sse_scores = perform_spectral_clustering_analysis(data_subset, labels_subset)
 
     pdf_output = pdf.PdfPages("spectral_clustering_results.pdf")
 
     # Plot ARI scores against sigma values
     plt.figure(figsize=(8, 6))
-    plt.plot(sigma_range, ari_results, marker='o', color='r')
+    plt.plot(sigmas, ari_scores , marker='o', color='r')
     plt.title('ARI Scores vs Sigma Values')
     plt.xlabel('Sigma')
     plt.ylabel('Adjusted Rand Index (ARI)')
@@ -183,7 +185,7 @@ def spectral_clustering():
 
     # Plot SSE scores against sigma values
     plt.figure(figsize=(8, 6))
-    plt.plot(sigma_range, sse_results, marker='o', color='b')
+    plt.plot( sigmas, sse_scores, marker='o', color='b')
     plt.title('SSE Scores vs Sigma Values')
     plt.xlabel('Sigma')
     plt.ylabel('Sum of Squared Errors (SSE)')
