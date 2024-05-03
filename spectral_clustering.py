@@ -60,7 +60,8 @@ def compute_adjusted_rand_index(true_labels, predicted_labels):
     total = np.sum(matrix)
     sum_ab = np.sum(sum_a * (sum_a - 1)) / 2
     sum_cd = np.sum(sum_b * (sum_b - 1)) / 2
-
+    a_plus_b_choose_2 = np.sum(sum_a * (sum_a - 1)) / 2
+    c_plus_d_choose_2 = np.sum(sum_b * (sum_b - 1)) / 2
     sum_ad_bc = np.sum(matrix * (matrix - 1)) / 2
 
     expected_index = sum_ab * sum_cd / total / (total - 1) + sum_ad_bc ** 2 / total / (total - 1)
@@ -91,24 +92,24 @@ def spectral(
     
     sigma = params_dict['sigma']
     k = params_dict['k']
-    
-    #Similarity Matrix
-    
-    num_samples = data.shape[0]
-    sim_matrix = np.zeros((num_samples, num_samples))
-    for i in range(num_samples):
-        for j in range(num_samples):
-            sim_matrix[i, j] = gaussian_similarity(data[i], data[j], sigma)
-    
-    #Laplacian Matrix
-    
-    degree_matrix = np.diag(np.sum(sim_matrix, axis=1))
-    laplacian = degree_matrix - sim_matrix
-    
-    eigenvectors,eigenvalues = eigh(lapalcian)
-    
+
+    # Construct the similarity matrix
+    n_samples = data.shape[0]
+    similarity_matrix = np.zeros((n_samples, n_samples))
+    for i in range(n_samples):
+        for j in range(n_samples):
+
+            similarity_matrix[i, j] = gaussian_similarity(data[i], data[j], sigma)
+
+    # Construct the Laplacian matrix
+    degree_matrix = np.diag(np.sum(similarity_matrix, axis=1))
+    laplacian_matrix = degree_matrix - similarity_matrix
+
+    # Compute eigenvectors and eigenvalues
+    eigenvalues, eigenvectors = eigh(laplacian_matrix)
+
+    # Perform k-means clustering on the eigenvectors with k-means++ initialization
     _, computed_labels = kmeans2(eigenvectors[:, 1:k], k, minit='++')
-    
     SSE = calculate_SSE (data , computed_labels)
     ARI = compute_adjusted_rand_index( labels, computed_labels)
     
@@ -206,22 +207,22 @@ def spectral_clustering():
         slice_data = cluster_data[slice_index * 1000: (slice_index + 1) * 1000]
         slice_labels = cluster_labels[slice_index * 1000: (slice_index + 1) * 1000]
         computed_labels, sse, ari, eigenvalues = spectral(slice_data, slice_labels, {'sigma': best_sigma, 'k': cluster_count})
-        groups[i] = {"sigma": best_sigma, "ARI": ari, "SSE": sse}
-        plot_values[slice_index] = {"labels": computed_labels, "SSE": sse, "ARI": ari, "eigenvalues": eigenvalues}
+        groups[slice_index] = {"sigma": best_sigma, "ARI": ari, "SSE": sse}
+        plots_values[slice_index] = {"computed_labels": computed_labels, "SSE": sse, "ARI": ari, "eigenvalues": eigenvalues}
 
     highest_ari = -1
-    best_dataset_index = None
+    best_index = None
     for i, group_info in plots_values.items():
         if group_info['ARI'] > highest_ari:
             highest_ari = group_info['ARI']
-            best_dataset_index = i
+            best_index = i
             
     # Plot the clusters for the dataset with the highest ARI
     plt.figure(figsize=(8, 6))
-    plot_ARI = plt.scatter(cluster_data[best_dataset_index * 1000: (best_dataset_index + 1) * 1000, 0], 
-                cluster_data[best_dataset_index * 1000: (best_dataset_index + 1) * 1000, 1], 
-                c=plots_values[best_dataset_index]["computed_labels"], cmap='viridis')
-    plt.title(f'Clustering for Dataset {best_dataset_index} (Highest ARI) with k value :{cluster_count} and sigma: 0.1')
+    plot_ARI = plt.scatter(cluster_data[best_index * 1000: (best_index + 1) * 1000, 0], 
+                cluster_data[best_index * 1000: (best_index + 1) * 1000, 1], 
+                c=plots_values[best_index]["computed_labels"], cmap='cividis')
+    plt.title(f'Clustering for Dataset {best_index} with highest ARI ')
     plt.suptitle('Spectral Clustering')
     plt.colorbar(label='Cluster')
     plt.xlabel('Feature 1')
@@ -232,18 +233,18 @@ def spectral_clustering():
 
     # Find the dataset with the lowest SSE
     lowest_sse = float('inf')
-    best_dataset_index_sse = None
+    dataset_index_sse = None
     for i, group_info in plots_values.items():
         if group_info['SSE'] < lowest_sse:
             lowest_sse = group_info['SSE']
-            best_dataset_index_sse = i
+            dataset_index_sse = i
 
     # Plot the clusters for the dataset with the lowest SSE
     plt.figure(figsize=(8, 6))
-    plot_SSE = plt.scatter(cluster_data[best_dataset_index_sse * 1000: (best_dataset_index_sse + 1) * 1000, 0], 
-                cluster_data[best_dataset_index_sse * 1000: (best_dataset_index_sse + 1) * 1000, 1], 
-                c=plots_values[best_dataset_index_sse]["computed_labels"], cmap='viridis')
-    plt.title(f'Clustering for Dataset {best_dataset_index_sse} (Lowest SSE) with k value :{cluster_count} and sigma: 0.1')
+    plot_SSE = plt.scatter(cluster_data[dataset_index_sse * 1000: (dataset_index_sse + 1) * 1000, 0], 
+                cluster_data[dataset_index_sse * 1000: (dataset_index_sse + 1) * 1000, 1], 
+                c=plots_values[dataset_index_sse]["computed_labels"], cmap='cividis')
+    plt.title(f'Clustering for Dataset {dataset_index_sse} with Lowest SSE ')
     plt.suptitle('Spectral Clustering')
     plt.colorbar(label='Cluster')
     plt.xlabel('Feature 1')
@@ -311,7 +312,7 @@ def spectral_clustering():
     # parameters to datasets 1, 2, 3, and 4. Compute the ARI for each dataset.
     # Calculate mean and standard deviation of ARI for all five datasets.
     
-    ari_scores = [result["ARI"] for result in plot_values.values()]
+    ari_scores = [result["ARI"] for result in plots_values.values()]
     average_ari = np.mean(ari_scores)
     standard_deviation_ari = np.std(ari_scores)
 
@@ -322,7 +323,7 @@ def spectral_clustering():
     answers["std_ARIs"] = standard_deviation_ari 
     
     # Extract SSE values from the analysis results and compute statistics
-    sse_scores = [result["SSE"] for result in plot_values.values()]
+    sse_scores = [result["SSE"] for result in plots_values.values()]
     average_sse = np.mean(sse_scores)
     standard_deviation_sse = np.std(sse_scores)
 
