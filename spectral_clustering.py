@@ -16,20 +16,20 @@ import matplotlib.backends.backend_pdf as pdf
 ######################################################################
 
 def calculate_SSE(data, labels): 
-    sse_total = 0.0
+    sse = 0.0
     for i in np.unique(labels):
         points_in_cluster = data[labels == i]
         center_of_cluster = np.mean(points_in_cluster, axis=0)
-        sse_total += np.sum((points_in_cluster - center_of_cluster) ** 2)
-    return sse_total
+        sse += np.sum((points_in_cluster - center_of_cluster) ** 2)
+    return sse
 
 
 def display_clustering_results(data,labels,title):
     plt.figure(figsize=(8, 6))
-    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', s=10)
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='cividis', s=10)
     plt.title(title)
-    plt.xlabel('Feature 1')
-    plt.ylabel('Feature 2')
+    plt.xlabel('Feature-1')
+    plt.ylabel('Feature-2')
     plt.colorbar(label='Cluster')
     plt.grid(True)
     plt.show()
@@ -106,7 +106,9 @@ def spectral(
     laplacian = degree_matrix - sim_matrix
     
     eigenvectors,eigenvalues = eigh(lapalcian)
+    
     _, computed_labels = kmeans2(eigenvectors[:, 1:k], k, minit='++')
+    
     SSE = calculate_SSE (data , computed_labels)
     ARI = compute_adjusted_rand_index( labels, computed_labels)
     
@@ -197,7 +199,7 @@ def spectral_clustering():
     # Assuming a function 'spectral_clustering_evaluation' is defined elsewhere
     best_sigma = 0.1
     cluster_count = 5
-    plots_values={}
+    plots_values = {}
 
     # Apply best hyperparameters on five slices of data
     for slice_index in range(5):
