@@ -66,7 +66,7 @@ def jarvis_patrick(
     data: NDArray[np.floating], labels: NDArray[np.int32], params_dict: dict
 ) -> tuple[NDArray[np.int32] | None, float | None, float | None]:
     """
-    Implementation of the Jarvis-Patrick algorithm only using the `numpy` module.
+    Implementation of the Jarvis-Patrick algorithm only using the numpy module.
 
     Arguments:
     - data: a set of points of shape 50,000 x 2.
@@ -166,7 +166,7 @@ def jarvis_patrick_clustering():
 
     answers = {}
 
-    # Return your `jarvis_patrick` function
+    # Return your jarvis_patrick function
     answers["jarvis_patrick_function"] = jarvis_patrick
 
     # Work with the first 10,000 data points: data[0:10000]
@@ -291,7 +291,7 @@ def jarvis_patrick_clustering():
     answers["1st group, SSE"] = groups[0]["SSE"] #{}
     
 
-    # Create two scatter plots using `matplotlib.pyplot`` where the two
+    # Create two scatter plots using matplotlib.pyplot` where the two
     # axes are the parameters used, with # \sigma on the horizontal axis
     # and \xi and the vertical axis. Color the points according to the SSE value
     # for the 1st plot and according to ARI in the second plot.
@@ -334,7 +334,8 @@ def jarvis_patrick_clustering():
 
 
 # ----------------------------------------------------------------------
-if __name__ == "__main__":
+if _name_ == "_main_":
     all_answers = jarvis_patrick_clustering()
     with open("jarvis_patrick_clustering.pkl", "wb") as fd:
         pickle.dump(all_answers, fd, protocol=pickle.HIGHEST_PROTOCOL)
+
