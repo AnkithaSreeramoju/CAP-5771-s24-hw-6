@@ -208,7 +208,7 @@ def jarvis_patrick_clustering():
     plot_ARI = plt.scatter(cluster_data[best_index * 1000: (best_index + 1) * 1000, 0], 
                 cluster_data[best_index * 1000: (best_index + 1) * 1000, 1], 
                 c=plots_values[best_index]["computed_labels"], cmap='cividis')
-    plt.title(f'Clustering for Dataset {best_index} with Highest ')
+    plt.title(f'Clustering for Dataset {best_index} with Highest ,k value :{best_k} and s_min: {best_s_min} ')
     plt.suptitle('Jarvis - Patrick Clustering')
     plt.xlabel('Feature-1')
     plt.ylabel('Feature-2')
@@ -228,7 +228,7 @@ def jarvis_patrick_clustering():
     plot_SSE = plt.scatter(cluster_data[best_index_sse * 1000: (best_index_sse + 1) * 1000, 0], 
                 cluster_data[best_index_sse * 1000: (best_index_sse + 1) * 1000, 1], 
                 c=plots_values[best_index_sse]["computed_labels"], cmap='cividis')
-    plt.title(f'Clustering for Dataset {best_index_sse} with Lowest SSE ')
+    plt.title(f'Clustering for Dataset {best_index_sse} with Lowest SSE ,k value :{best_k} and s_min: {best_s_min}')
     plt.suptitle('Jarvis - Patrick Clustering')
     plt.xlabel('Feature-1')
     plt.ylabel('Feature-2')
