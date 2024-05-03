@@ -222,7 +222,7 @@ def spectral_clustering():
     plot_ARI = plt.scatter(cluster_data[best_index * 1000: (best_index + 1) * 1000, 0], 
                 cluster_data[best_index * 1000: (best_index + 1) * 1000, 1], 
                 c=plots_values[best_index]["computed_labels"], cmap='cividis')
-    plt.title(f'Clustering for Dataset {best_index} with highest ARI ')
+    plt.title(f'Clustering for Dataset {best_index} with highest ARI , k value :{best_k} and sigma: 0.1')
     plt.suptitle('Spectral Clustering')
     plt.colorbar(label='Cluster')
     plt.xlabel('Feature 1')
@@ -244,7 +244,7 @@ def spectral_clustering():
     plot_SSE = plt.scatter(cluster_data[dataset_index_sse * 1000: (dataset_index_sse + 1) * 1000, 0], 
                 cluster_data[dataset_index_sse * 1000: (dataset_index_sse + 1) * 1000, 1], 
                 c=plots_values[dataset_index_sse]["computed_labels"], cmap='cividis')
-    plt.title(f'Clustering for Dataset {dataset_index_sse} with Lowest SSE ')
+    plt.title(f'Clustering for Dataset {dataset_index_sse} with Lowest SSE , k value :{best_k} and sigma: 0.1 ')
     plt.suptitle('Spectral Clustering')
     plt.colorbar(label='Cluster')
     plt.xlabel('Feature 1')
