@@ -61,6 +61,37 @@ def compute_adjusted_rand_index(true_labels, predicted_labels):
     max_index = (sum_ab + sum_cd) / 2
     return (sum_ad_bc - expected_index) / (max_index - expected_index)
 
+def plot_parameter_heatmap(k_values, s_min_values, scores, title, score_type):
+    plt.figure(figsize=(10, 6))
+    plt.imshow(scores, extent=[min(k_values), max(k_values), min(s_min_values), max(s_min_values)], aspect='auto', origin='lower')
+    plt.colorbar(label=score_type)
+    plt.xlabel('k')
+    plt.ylabel('s_min')
+    plt.title(title)
+    plt.grid(True)
+    plt.show()
+
+def compute_scores(data, labels, k_values, s_min_values):
+    sse_scores = np.zeros((len(s_min_values), len(k_values)))
+    ari_scores = np.zeros((len(s_min_values), len(k_values)))
+
+    for i, k in enumerate(k_values):
+        for j, s_min in enumerate(s_min_values):
+            params_dict = {'k': k, 's_min': s_min}
+            _, sse, ari = jarvis_patrick(data, labels, params_dict)
+            sse_scores[j, i] = sse
+            ari_scores[j, i] = ari
+
+    return sse_scores, ari_scores
+
+def plot_k_s_min_scores(data, labels, k_range, s_min_range):
+    k_values = np.array(k_range)
+    s_min_values = np.array(s_min_range)
+
+    sse_scores, ari_scores = compute_scores(data, labels, k_values, s_min_values)
+
+    plot_parameter_heatmap(k_values, s_min_values, sse_scores, 'SSE scores', 'SSE')
+    plot_parameter_heatmap(k_values, s_min_values, ari_scores, 'ARI scores', 'ARI')
 
 
 def jarvis_patrick(
